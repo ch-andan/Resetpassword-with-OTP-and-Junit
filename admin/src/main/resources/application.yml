@@ -1,0 +1,7 @@
+spring:
+  mail:
+    host: smtp-relay.sendinblue.com
+    username: chandanhp49@gmail.com
+    password: jzIEyV0J7c26sfLv
+    port: 587
+
