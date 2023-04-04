@@ -136,6 +136,12 @@ public class AdminController {
         return expectedMap;
     }
 
+    @GetMapping("get/private/user/details")
+    public ResponseEntity<Object> getUserBasicInfoAfterLoginSuccess(@RequestParam  String email) throws PWSException{
+        UserBasicDetailsDTO userBasicDetailsDTO = adminService.getUserBasicInfoAfterLoginSuccess(email);
+        return CommonUtils.buildResponseEntity(new ApiSuccess(HttpStatus.OK, userBasicDetailsDTO));
+    }
+
     @DeleteMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");

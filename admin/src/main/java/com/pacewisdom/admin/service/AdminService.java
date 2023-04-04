@@ -23,6 +23,8 @@ public interface AdminService {
 
     void updateUserXref(UserxrefDto userxrefDto) throws PWSException;
 
+    UserBasicDetailsDTO getUserBasicInfoAfterLoginSuccess(String  email) throws PWSException;
+
     void updateUserPassword(UserpasswordDto userpasswordDto) throws PWSException;
 
 

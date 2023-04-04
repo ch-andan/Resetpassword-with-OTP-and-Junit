@@ -236,23 +236,26 @@ public class AdminServiceImpl implements AdminService {
         user.setResetPasswordToken(null);
         repo.save(user);
     }
-    @DeleteMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String jwt = authHeader.substring(7);
-            if(jwtUtil.isTokenBlacklisted(jwt))
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalidated.");
-            String userDetails = jwtUtil.getUsernameFromToken(jwt);
-            // Invalidate the token
-            jwtUtil.invalidateToken(jwt);
-            // Clear user details from session
-            request.getSession().removeAttribute("userDetails");
-            return ResponseEntity.ok("Successfully logged out.");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
-        }
+
+    @Override
+    public UserBasicDetailsDTO getUserBasicInfoAfterLoginSuccess(String email) throws PWSException {
+        Optional<User> optionalUser = repo.findUserByEmail(email);
+        if(! optionalUser.isPresent())
+            throw new PWSException("User not Exist with Email : " + email);
+        User user = optionalUser.get();
+        UserBasicDetailsDTO userBasicDetailsDTO =new UserBasicDetailsDTO();
+        userBasicDetailsDTO.setUser(user);
+
+        List<Role> roleList =userRoleXrefRepo.findAllUserRoleByUserId(user.getId());
+        userBasicDetailsDTO.setRoleList(roleList);
+        List<Permission> permissionList =null;
+        if(roleList.size()>0)
+            permissionList = permissionRepo.getAllUserPermisonsByRoleId(roleList.get(0).getId());
+
+        userBasicDetailsDTO.setPermissionList(permissionList);
+        return userBasicDetailsDTO;
     }
+
     private boolean isStrongPassword(String password) {
         boolean hasUppercase = false;
         boolean hasLowercase = false;
@@ -281,6 +284,8 @@ public class AdminServiceImpl implements AdminService {
         String specialChars = "!@#$%^&*()_-+=[{]};:<>|./?";
         return specialChars.contains(Character.toString(ch));
     }
+
+
 }
 
 
